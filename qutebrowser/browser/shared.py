@@ -164,7 +164,8 @@ def ignore_certificate_errors(url, errors, abort_on):
         errors, ssl_strict))
 
     for error in errors:
-        assert error.is_overridable(), repr(error)
+        if not error.is_overridable():
+            raise AssertionError(repr(error))
 
     if ssl_strict == 'ask':
         err_template = jinja.environment.from_string("""

@@ -121,7 +121,8 @@ class add_handler:  # noqa: N801,N806 pylint: disable=invalid-name
 
     def wrapper(self, *args, **kwargs):
         """Call the underlying function."""
-        assert self._function is not None
+        if self._function is None:
+            raise AssertionError
         return self._function(*args, **kwargs)
 
 
@@ -172,7 +173,8 @@ def data_for_url(url):
     except OSError as e:
         raise SchemeOSError(e)
 
-    assert mimetype is not None, url
+    if mimetype is None:
+        raise AssertionError(url)
     if mimetype == 'text/html' and isinstance(data, str):
         # We let handlers return HTML as text
         data = data.encode('utf-8', errors='xmlcharrefreplace')

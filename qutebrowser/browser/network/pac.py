@@ -245,7 +245,8 @@ class PACFetcher(QObject):
 
         pac_prefix = "pac+"
 
-        assert url.scheme().startswith(pac_prefix)
+        if not url.scheme().startswith(pac_prefix):
+            raise AssertionError
         url.setScheme(url.scheme()[len(pac_prefix):])
 
         self._pac_url = url
@@ -264,13 +265,15 @@ class PACFetcher(QObject):
 
     def fetch(self):
         """Fetch the proxy from the remote URL."""
-        assert self._manager is not None
+        if self._manager is None:
+            raise AssertionError
         self._reply = self._manager.get(QNetworkRequest(self._pac_url))
         self._reply.finished.connect(self._finish)  # type: ignore
 
     @pyqtSlot()
     def _finish(self):
-        assert self._reply is not None
+        if self._reply is None:
+            raise AssertionError
         if self._reply.error() != QNetworkReply.NoError:
             error = "Can't fetch PAC file from URL, error code {}: {}"
             self._error_message = error.format(
@@ -318,7 +321,8 @@ class PACFetcher(QObject):
         Return a list of QNetworkProxy objects in order of preference.
         """
         self._wait()
-        assert self._pac is not None
+        if self._pac is None:
+            raise AssertionError
         from_file = self._pac_url.scheme() == 'file'
         try:
             return self._pac.resolve(query, from_file=from_file)

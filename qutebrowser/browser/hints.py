@@ -387,7 +387,8 @@ class HintManager(QObject):
 
     def _get_text(self) -> str:
         """Get a hint text based on the current context."""
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
         text = self.HINT_TEXTS[self._context.target]
         if self._context.rapid:
             text += ' (rapid mode)'
@@ -396,7 +397,8 @@ class HintManager(QObject):
 
     def _cleanup(self) -> None:
         """Clean up after hinting."""
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
         for label in self._context.all_labels:
             label.cleanup()
 
@@ -420,7 +422,8 @@ class HintManager(QObject):
         if not elems:
             return []
 
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
         hint_mode = self._context.hint_mode
         if hint_mode == 'word':
             try:
@@ -794,7 +797,8 @@ class HintManager(QObject):
             visible: typing.Mapping[str, HintLabel] = None
     ) -> None:
         """Handle the auto_follow option."""
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
 
         if visible is None:
             visible = {string: label
@@ -863,7 +867,8 @@ class HintManager(QObject):
                        and `self._context.filterstr` are None, all hints are
                        shown.
         """
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
 
         if filterstr is None:
             filterstr = self._context.filterstr
@@ -915,7 +920,8 @@ class HintManager(QObject):
         Args:
             keystr: The keychain string to follow.
         """
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
         # Handlers which take a QWebElement
         elem_handlers = {
             Target.normal: self._actions.click,
@@ -987,7 +993,8 @@ class HintManager(QObject):
             select: Only select the given hint, don't necessarily follow it.
             keystring: The hint to follow, or None.
         """
-        assert self._context is not None
+        if self._context is None:
+            raise AssertionError
         if keystring is None:
             if self._context.to_follow is None:
                 raise cmdutils.CommandError("No hint to follow")

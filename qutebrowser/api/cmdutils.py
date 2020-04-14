@@ -145,7 +145,8 @@ class register:  # noqa: N801,N806 pylint: disable=invalid-name
         if self._name is None:
             name = func.__name__.lower().replace('_', '-')
         else:
-            assert isinstance(self._name, str), self._name
+            if not isinstance(self._name, str):
+                raise AssertionError(self._name)
             name = self._name
 
         cmd = command.Command(name=name, instance=self._instance,

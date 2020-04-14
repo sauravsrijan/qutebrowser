@@ -44,9 +44,11 @@ class MatchResult:
 
     def __attrs_post_init__(self) -> None:
         if self.match_type == QKeySequence.ExactMatch:
-            assert self.command is not None
+            if self.command is None:
+                raise AssertionError
         else:
-            assert self.command is None
+            if self.command is not None:
+                raise AssertionError
 
 
 class BindingTrie:
@@ -207,7 +209,8 @@ class BaseKeyParser(QObject):
                 binding: - None with Match.partial/Match.none.
                          - The found binding with Match.definitive.
         """
-        assert sequence
+        if not sequence:
+            raise AssertionError
         return self.bindings.matches(sequence)
 
     def _match_without_modifiers(
@@ -238,7 +241,8 @@ class BaseKeyParser(QObject):
         if (txt in string.digits and self.supports_count and
                 not (not self._count and txt == '0')):
             self._debug_log("Trying match as count")
-            assert len(txt) == 1, txt
+            if len(txt) != 1:
+                raise AssertionError(txt)
             if not dry_run:
                 self._count += txt
                 self.keystring_updated.emit(self._count + str(self._sequence))
@@ -296,7 +300,8 @@ class BaseKeyParser(QObject):
         self._sequence = result.sequence
 
         if result.match_type == QKeySequence.ExactMatch:
-            assert result.command is not None
+            if result.command is None:
+                raise AssertionError
             self._debug_log("Definitive match for '{}'.".format(
                 result.sequence))
             count = int(self._count) if self._count else None
@@ -339,7 +344,8 @@ class BaseKeyParser(QObject):
         self.bindings = BindingTrie()
 
         for key, cmd in config.key_instance.get_bindings_for(modename).items():
-            assert cmd
+            if not cmd:
+                raise AssertionError
             self.bindings[key] = cmd
 
     def execute(self, cmdstr: str, count: int = None) -> None:

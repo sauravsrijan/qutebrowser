@@ -44,7 +44,8 @@ class ChildEventFilter(QObject):
     def __init__(self, eventfilter, widget, win_id, parent=None):
         super().__init__(parent)
         self._filter = eventfilter
-        assert widget is not None
+        if widget is None:
+            raise AssertionError
         self._widget = widget
         self._win_id = win_id
 
@@ -54,7 +55,8 @@ class ChildEventFilter(QObject):
             child = event.child()
             log.misc.debug("{} got new child {}, installing filter".format(
                 obj, child))
-            assert obj is self._widget
+            if obj is not self._widget:
+                raise AssertionError
             child.installEventFilter(self._filter)
 
             if qtutils.version_check('5.11', compiled=False, exact=True):

@@ -110,7 +110,8 @@ class ValidValues:
                 self.values.append(value)
             elif isinstance(value, dict):
                 # List of dicts from configdata.yml
-                assert len(value) == 1, value
+                if len(value) != 1:
+                    raise AssertionError(value)
                 value, desc = list(value.items())[0]
                 self.values.append(value)
                 self.descriptions[value] = desc
@@ -130,7 +131,8 @@ class ValidValues:
                               descriptions=self.descriptions)
 
     def __eq__(self, other: object) -> bool:
-        assert isinstance(other, ValidValues)
+        if not isinstance(other, ValidValues):
+            raise AssertionError
         return (self.values == other.values and
                 self.descriptions == other.descriptions)
 
@@ -199,7 +201,8 @@ class BaseType:
         Arguments:
             value: The value to check.
         """
-        assert isinstance(value, str), value
+        if not isinstance(value, str):
+            raise AssertionError(value)
         if not value and not self.none_ok:
             raise configexc.ValidationError(value, "may not be empty!")
         BaseType._basic_str_validation_cache(value)
@@ -284,7 +287,8 @@ class BaseType:
         """
         if value is None:
             return ''
-        assert isinstance(value, str), value
+        if not isinstance(value, str):
+            raise AssertionError(value)
         return value
 
     def to_doc(self, value: typing.Any, indent: int = 0) -> str:
@@ -542,7 +546,8 @@ class List(BaseType):
             return 'empty'
 
         # Might work, but untested
-        assert not isinstance(self.valtype, (Dict, List)), self.valtype
+        if isinstance(self.valtype, (Dict, List)):
+            raise AssertionError(self.valtype)
 
         lines = ['\n']
         prefix = '-' if not indent else '*' * indent
@@ -573,7 +578,8 @@ class ListOrValue(BaseType):
                  none_ok: bool = False,
                  **kwargs: typing.Any) -> None:
         super().__init__(none_ok)
-        assert not isinstance(valtype, (List, ListOrValue)), valtype
+        if isinstance(valtype, (List, ListOrValue)):
+            raise AssertionError(valtype)
         self.listtype = List(valtype, none_ok=none_ok, **kwargs)
         self.valtype = valtype
 
@@ -791,7 +797,8 @@ class _Numeric(BaseType):  # pylint: disable=abstract-method
             return qtutils.MAXVALS['int64']
         else:
             if bound is not None:
-                assert isinstance(bound, (int, float)), bound
+                if not isinstance(bound, (int, float)):
+                    raise AssertionError(bound)
             return bound
 
     def _validate_bounds(self, value: typing.Union[None, int, float],
@@ -1222,7 +1229,8 @@ class Font(BaseType):
         if default_family:
             families = configutils.FontFamilies(default_family)
         else:
-            assert QApplication.instance() is not None
+            if QApplication.instance() is None:
+                raise AssertionError
             font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
             families = configutils.FontFamilies([font.family()])
 
@@ -1409,7 +1417,8 @@ class Regex(BaseType):
                     pattern, "must be a valid regex - recursion depth "
                     "exceeded")
 
-        assert recorded_warnings is not None
+        if recorded_warnings is None:
+            raise AssertionError
 
         for w in recorded_warnings:
             if (issubclass(w.category, DeprecationWarning) and
@@ -1442,7 +1451,8 @@ class Regex(BaseType):
         elif isinstance(value, self._regex_type):
             return value.pattern
         else:
-            assert isinstance(value, str)
+            if not isinstance(value, str):
+                raise AssertionError
             return value
 
     def __repr__(self) -> str:
@@ -1464,7 +1474,8 @@ class Dict(BaseType):
         super().__init__(none_ok)
         # If the keytype is not a string, we'll get problems with showing it as
         # json in to_str() as json converts keys to strings.
-        assert isinstance(keytype, (String, Key)), keytype
+        if not isinstance(keytype, (String, Key)):
+            raise AssertionError(keytype)
         self.keytype = keytype
         self.valtype = valtype
         self.fixed_keys = fixed_keys
@@ -1729,15 +1740,18 @@ class Proxy(BaseType):
             else:
                 # If we add a special value to valid_values, we need to handle
                 # it here!
-                assert self.valid_values is not None
-                assert value not in self.valid_values, value
+                if self.valid_values is None:
+                    raise AssertionError
+                if value in self.valid_values:
+                    raise AssertionError(value)
                 url = QUrl(value)
             return urlutils.proxy_from_url(url)
         except (urlutils.InvalidUrlError, urlutils.InvalidProxyTypeError) as e:
             raise configexc.ValidationError(value, e)
 
     def complete(self) -> _Completions:
-        assert self.valid_values is not None
+        if self.valid_values is None:
+            raise AssertionError
         out = []
         for val in self.valid_values:
             out.append((val, self.valid_values.descriptions[val]))

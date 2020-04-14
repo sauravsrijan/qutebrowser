@@ -169,8 +169,10 @@ class DownloadView(QListView):
             if name is None and handler is None:
                 self._menu.addSeparator()
             else:
-                assert name is not None
-                assert handler is not None
+                if name is None:
+                    raise AssertionError
+                if handler is None:
+                    raise AssertionError
                 action = self._menu.addAction(name)
                 action.triggered.connect(handler)
         if actions:

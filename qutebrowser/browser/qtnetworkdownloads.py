@@ -108,7 +108,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
 
     def _create_fileobj(self):
         """Create a file object using the internal filename."""
-        assert self._filename is not None
+        if self._filename is None:
+            raise AssertionError
         try:
             fileobj = open(self._filename, 'wb')
         except OSError as e:
@@ -179,8 +180,10 @@ class DownloadItem(downloads.AbstractDownloadItem):
     def retry(self):
         """Retry a failed download."""
         assert self.done
-        assert not self.successful
-        assert self._retry_info is not None
+        if self.successful:
+            raise AssertionError
+        if self._retry_info is None:
+            raise AssertionError
         new_reply = self._retry_info.manager.get(self._retry_info.request)
         new_download = self._manager.fetch(new_reply,
                                            suggested_filename=self.basename)
@@ -216,7 +219,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
 
     def _ask_create_parent_question(self, title, msg,
                                     force_overwrite, remember_directory):
-        assert self._filename is not None
+        if self._filename is None:
+            raise AssertionError
         no_action = functools.partial(self.cancel, remove_data=False)
         url = 'file://{}'.format(os.path.dirname(self._filename))
         message.confirm_async(title=title, text=msg,
@@ -233,7 +237,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
         Args:
             fileobj: A file-like object.
         """
-        assert self._reply is not None
+        if self._reply is None:
+            raise AssertionError
         if self.fileobj is not None:  # pragma: no cover
             raise ValueError("fileobj was already set! Old: {}, new: "
                              "{}".format(self.fileobj, fileobj))
@@ -262,8 +267,10 @@ class DownloadItem(downloads.AbstractDownloadItem):
 
     def _finish_download(self):
         """Write buffered data to disk and finish the QNetworkReply."""
-        assert self._reply is not None
-        assert self.fileobj is not None
+        if self._reply is None:
+            raise AssertionError
+        if self.fileobj is None:
+            raise AssertionError
         log.downloads.debug("Finishing download...")
         if self._reply.isOpen():
             self.fileobj.write(self._reply.readAll())
@@ -331,7 +338,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
     @pyqtSlot()
     def _on_read_timer_timeout(self):
         """Read some bytes from the QNetworkReply periodically."""
-        assert self._reply is not None
+        if self._reply is None:
+            raise AssertionError
         if not self._reply.isOpen():
             raise OSError("Reply is closed!")
         data = self._reply.read(1024)
@@ -353,7 +361,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
         Return:
             True if the download was redirected, False otherwise.
         """
-        assert self._reply is not None
+        if self._reply is None:
+            raise AssertionError
         redirect = self._reply.attribute(
             QNetworkRequest.RedirectionTargetAttribute)
         if redirect is None or redirect.isEmpty():
@@ -373,7 +382,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
         new_request.setUrl(new_url)
 
         old_reply = self._reply
-        assert old_reply is not None
+        if old_reply is None:
+            raise AssertionError
         old_reply.finished.disconnect(self._on_reply_finished)
 
         self._read_timer.stop()
@@ -391,7 +401,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
 
     def _uses_nam(self, nam):
         """Check if this download uses the given QNetworkAccessManager."""
-        assert self._retry_info is not None
+        if self._retry_info is None:
+            raise AssertionError
         running_nam = self._reply is not None and self._reply.manager() is nam
         # user could request retry after tab is closed.
         retry_nam = (self.done and (not self.successful) and
@@ -436,7 +447,8 @@ class DownloadManager(downloads.AbstractDownloadManager):
 
     def get_mhtml(self, tab, target):
         """Download the given tab as mhtml to the given DownloadTarget."""
-        assert tab.backend == usertypes.Backend.QtWebKit
+        if tab.backend != usertypes.Backend.QtWebKit:
+            raise AssertionError
         from qutebrowser.browser.webkit import mhtml
 
         if target is not None:
@@ -573,7 +585,8 @@ class DownloadManager(downloads.AbstractDownloadManager):
         Return:
             A boolean.
         """
-        assert nam.adopted_downloads == 0
+        if nam.adopted_downloads != 0:
+            raise AssertionError
         for download in self.downloads:
             if download._uses_nam(nam):  # pylint: disable=protected-access
                 nam.adopt_download(download)

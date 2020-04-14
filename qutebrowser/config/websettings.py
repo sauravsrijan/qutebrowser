@@ -139,7 +139,8 @@ class AbstractSettings:
         Return:
             True if there was a change, False otherwise.
         """
-        assert value is not usertypes.UNSET  # type: ignore
+        if value is usertypes.UNSET:
+            raise AssertionError
         family = self._FONT_SIZES[name]
         old_value = self._settings.fontSize(family)
         self._settings.setFontSize(family, value)
@@ -154,7 +155,8 @@ class AbstractSettings:
         Return:
             True if there was a change, False otherwise.
         """
-        assert value is not usertypes.UNSET  # type: ignore
+        if value is usertypes.UNSET:
+            raise AssertionError
         family = self._FONT_FAMILIES[name]
         if value is None:
             font = QFont()
@@ -172,7 +174,8 @@ class AbstractSettings:
         Return:
             True if there was a change, False otherwise.
         """
-        assert encoding is not usertypes.UNSET  # type: ignore
+        if encoding is usertypes.UNSET:
+            raise AssertionError
         old_value = self._settings.defaultTextEncoding()
         self._settings.setDefaultTextEncoding(encoding)
         return old_value != encoding
@@ -239,7 +242,8 @@ def _format_user_agent(template: str, backend: usertypes.Backend) -> str:
         from qutebrowser.browser.webkit import webkitsettings
         parsed = webkitsettings.parsed_user_agent
 
-    assert parsed is not None
+    if parsed is None:
+        raise AssertionError
 
     return template.format(
         os_info=parsed.os_info,

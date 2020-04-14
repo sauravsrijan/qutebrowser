@@ -394,7 +394,8 @@ class PromptContainer(QWidget):
                    For boolean prompts, "yes"/"no" are accepted as value.
             save: Save the value to the config.
         """
-        assert self._prompt is not None
+        if self._prompt is None:
+            raise AssertionError
         question = self._prompt.question
 
         try:
@@ -422,7 +423,8 @@ class PromptContainer(QWidget):
                      cmdline.
             pdfjs: Open the download via PDF.js.
         """
-        assert self._prompt is not None
+        if self._prompt is None:
+            raise AssertionError
         try:
             self._prompt.download_open(cmdline, pdfjs=pdfjs)
         except UnsupportedOperationError:
@@ -437,7 +439,8 @@ class PromptContainer(QWidget):
         Args:
             which: 'next', 'prev'
         """
-        assert self._prompt is not None
+        if self._prompt is None:
+            raise AssertionError
         try:
             self._prompt.item_focus(which)
         except UnsupportedOperationError:
@@ -452,7 +455,8 @@ class PromptContainer(QWidget):
         Args:
             sel: Use the primary selection instead of the clipboard.
         """
-        assert self._prompt is not None
+        if self._prompt is None:
+            raise AssertionError
         question = self._prompt.question
         if question.url is None:
             message.error('No URL found.')
@@ -513,7 +517,8 @@ class _BasePrompt(QWidget):
         return utils.get_repr(self, question=self.question, constructor=True)
 
     def _init_texts(self, question):
-        assert question.title is not None, question
+        if question.title is None:
+            raise AssertionError(question)
         title = '<font size="4"><b>{}</b></font>'.format(
             html.escape(question.title))
         title_label = QLabel(title, self)
@@ -525,7 +530,8 @@ class _BasePrompt(QWidget):
             self._vbox.addWidget(text_label)
 
     def _init_key_label(self):
-        assert self._key_grid is None, self._key_grid
+        if self._key_grid is not None:
+            raise AssertionError(self._key_grid)
         self._key_grid = QGridLayout()
         self._key_grid.setVerticalSpacing(0)
 
@@ -722,7 +728,8 @@ class FilenamePrompt(_BasePrompt):
 
     def item_focus(self, which):
         # This duplicates some completion code, but I don't see a nicer way...
-        assert which in ['prev', 'next'], which
+        if which not in ['prev', 'next']:
+            raise AssertionError(which)
         selmodel = self._file_view.selectionModel()
 
         parent = self._file_view.rootIndex()
@@ -734,7 +741,8 @@ class FilenamePrompt(_BasePrompt):
             # No entries
             return
 
-        assert last_index.isValid()
+        if not last_index.isValid():
+            raise AssertionError
 
         idx = selmodel.currentIndex()
 
@@ -744,7 +752,8 @@ class FilenamePrompt(_BasePrompt):
         elif which == 'prev':
             idx = self._file_view.indexAbove(idx)
         else:
-            assert which == 'next', which
+            if which != 'next':
+                raise AssertionError(which)
             idx = self._file_view.indexBelow(idx)
 
         # wrap around if we arrived at beginning/end
@@ -765,7 +774,8 @@ class FilenamePrompt(_BasePrompt):
             if which == 'prev':
                 idx = self._file_view.indexAbove(idx)
             else:
-                assert which == 'next', which
+                if which != 'next':
+                    raise AssertionError(which)
                 idx = self._file_view.indexBelow(idx)
             filename = self._file_model.fileName(idx)
 
@@ -836,7 +846,8 @@ class AuthenticationPrompt(_BasePrompt):
         self._vbox.addLayout(grid)
         self._init_key_label()
 
-        assert not question.default, question.default
+        if question.default:
+            raise AssertionError(question.default)
         self.setFocusProxy(self._user_lineedit)
 
     def accept(self, value=None, save=False):
@@ -861,7 +872,8 @@ class AuthenticationPrompt(_BasePrompt):
 
     def item_focus(self, which):
         """Support switching between fields with tab."""
-        assert which in ['prev', 'next'], which
+        if which not in ['prev', 'next']:
+            raise AssertionError(which)
         if which == 'next' and self._user_lineedit.hasFocus():
             self._password_lineedit.setFocus()
         elif which == 'prev' and self._password_lineedit.hasFocus():
@@ -904,7 +916,8 @@ class YesNoPrompt(_BasePrompt):
 
         if save:
             opt = config.instance.get_opt(self.question.option)
-            assert isinstance(opt.typ, configtypes.Bool)
+            if not isinstance(opt.typ, configtypes.Bool):
+                raise AssertionError
             pattern = urlmatch.UrlPattern(self.question.url)
 
             try:
@@ -927,7 +940,8 @@ class YesNoPrompt(_BasePrompt):
             cmds.append(('prompt-accept --save no', "Never"))
 
         if self.question.default is not None:
-            assert self.question.default in [True, False]
+            if self.question.default not in [True, False]:
+                raise AssertionError
             default = 'yes' if self.question.default else 'no'
             cmds.append(('prompt-accept', "Use default ({})".format(default)))
 

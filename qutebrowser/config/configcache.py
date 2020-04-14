@@ -49,6 +49,7 @@ class ConfigCache:
         try:
             return self._cache[attr]
         except KeyError:
-            assert not config.instance.get_opt(attr).supports_pattern
+            if config.instance.get_opt(attr).supports_pattern:
+                raise AssertionError
             result = self._cache[attr] = config.instance.get(attr)
             return result

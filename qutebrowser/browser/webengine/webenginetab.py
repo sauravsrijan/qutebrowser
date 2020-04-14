@@ -375,7 +375,8 @@ class WebEngineCaret(browsertab.AbstractCaret):
             self._follow_enter(tab)
             return
 
-        assert isinstance(js_elem, dict), js_elem
+        if not isinstance(js_elem, dict):
+            raise AssertionError(js_elem)
         elem = webengineelem.WebEngineElement(js_elem, tab=self._tab)
         if tab:
             click_type = usertypes.ClickTarget.tab
@@ -678,8 +679,10 @@ class WebEngineElements(browsertab.AbstractElements):
         self._tab.run_js_async(js_code, js_cb)
 
     def find_at_pos(self, pos, callback):
-        assert pos.x() >= 0, pos
-        assert pos.y() >= 0, pos
+        if pos.x() < 0:
+            raise AssertionError(pos)
+        if pos.y() < 0:
+            raise AssertionError(pos)
         pos /= self._tab.zoom.factor()
         js_code = javascript.assemble('webelem', 'find_at_pos',
                                       pos.x(), pos.y())
@@ -709,7 +712,8 @@ class WebEngineAudio(browsertab.AbstractAudio):
 
     def set_muted(self, muted: bool, override: bool = False) -> None:
         self._overridden = override
-        assert self._widget is not None
+        if self._widget is None:
+            raise AssertionError
         page = self._widget.page()
         page.setAudioMuted(muted)
 
@@ -790,7 +794,8 @@ class _WebEnginePermissions(QObject):
             # Added in Qt 5.10
             pass
 
-        assert self._options.keys() == self._messages.keys()
+        if self._options.keys() != self._messages.keys():
+            raise AssertionError
 
     def connect_signals(self):
         """Connect related signals from the QWebEnginePage."""
@@ -1024,7 +1029,8 @@ class _WebEngineScripts(QObject):
                 log.greasemonkey.debug('Removing script: {}'
                                        .format(script.name()))
                 removed = page_scripts.remove(script)
-                assert removed, script.name()
+                if not removed:
+                    raise AssertionError(script.name())
 
     def _inject_greasemonkey_scripts(self, scripts=None, injection_point=None,
                                      remove_first=True):
@@ -1549,7 +1555,8 @@ class WebEngineTab(browsertab.AbstractTab):
             'content.print_element_backgrounds',
             'input.spatial_navigation',
         }
-        assert settings_needing_reload.issubset(configdata.DATA)
+        if not settings_needing_reload.issubset(configdata.DATA):
+            raise AssertionError
 
         changed = self.settings.update_for_url(navigation.url)
         reload_needed = bool(changed & settings_needing_reload)

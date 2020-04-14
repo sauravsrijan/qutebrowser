@@ -191,7 +191,8 @@ class Values:
         scoped_value = self._vmap[pattern]
         # If we error here, that means domain_map and vmap are out of sync,
         # report a bug!
-        assert host in self._domain_map
+        if host not in self._domain_map:
+            raise AssertionError
         self._domain_map[host].remove(scoped_value)
         del self._vmap[pattern]
         return True

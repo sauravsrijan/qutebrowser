@@ -153,7 +153,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
 
     def _ask_create_parent_question(self, title, msg,
                                     force_overwrite, remember_directory):
-        assert self._filename is not None
+        if self._filename is None:
+            raise AssertionError
         no_action = functools.partial(self.cancel, remove_data=False)
         question = usertypes.Question()
         question.title = title
@@ -170,7 +171,8 @@ class DownloadItem(downloads.AbstractDownloadItem):
         message.global_bridge.ask(question, blocking=True)
 
     def _after_set_filename(self):
-        assert self._filename is not None
+        if self._filename is None:
+            raise AssertionError
 
         dirname, basename = os.path.split(self._filename)
         try:
@@ -272,7 +274,9 @@ class DownloadManager(downloads.AbstractDownloadManager):
 
     def get_mhtml(self, tab, target):
         """Download the given tab as mhtml to the given target."""
-        assert tab.backend == usertypes.Backend.QtWebEngine
-        assert self._mhtml_target is None, self._mhtml_target
+        if tab.backend != usertypes.Backend.QtWebEngine:
+            raise AssertionError
+        if self._mhtml_target is not None:
+            raise AssertionError(self._mhtml_target)
         self._mhtml_target = target
         tab.action.save_page()

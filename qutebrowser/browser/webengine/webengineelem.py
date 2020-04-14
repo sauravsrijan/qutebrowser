@@ -55,7 +55,8 @@ class WebEngineElement(webelem.AbstractWebElement):
             'attributes': dict,
             'caret_position': (int, type(None)),
         }  # type: typing.Dict[str, typing.Union[type, typing.Tuple[type,...]]]
-        assert set(js_dict.keys()).issubset(js_dict_types.keys())
+        if not set(js_dict.keys()).issubset(js_dict_types.keys()):
+            raise AssertionError
         for name, typ in js_dict_types.items():
             if name in js_dict and not isinstance(js_dict[name], typ):
                 raise TypeError("Got {} for {} from JS but expected {}: "
@@ -69,8 +70,9 @@ class WebEngineElement(webelem.AbstractWebElement):
                 raise TypeError("Got {} ({}) for attribute {} from JS: "
                                 "{}".format(value, type(value), name, js_dict))
         for rect in js_dict['rects']:
-            assert set(rect.keys()) == {'top', 'right', 'bottom', 'left',
-                                        'height', 'width'}, rect.keys()
+            if set(rect.keys()) != {'top', 'right', 'bottom', 'left',
+                                        'height', 'width'}:
+                raise AssertionError(rect.keys())
             for value in rect.values():
                 if not isinstance(value, (int, float)):
                     raise TypeError("Got {} ({}) for rect from JS: "
@@ -129,7 +131,8 @@ class WebEngineElement(webelem.AbstractWebElement):
         The returned name will always be lower-case.
         """
         tag = self._js_dict['tag_name']
-        assert isinstance(tag, str), tag
+        if not isinstance(tag, str):
+            raise AssertionError(tag)
         return tag.lower()
 
     def outer_xml(self) -> str:
@@ -238,7 +241,8 @@ class WebEngineElement(webelem.AbstractWebElement):
         # FIXME:qtwebengine Have a proper API for this
         # pylint: disable=protected-access
         view = self._tab._widget
-        assert view is not None
+        if view is None:
+            raise AssertionError
         # pylint: enable=protected-access
         attribute = QWebEngineSettings.JavascriptCanOpenWindows
         could_open_windows = view.settings().testAttribute(attribute)
@@ -254,7 +258,8 @@ class WebEngineElement(webelem.AbstractWebElement):
 
         def reset_setting(_arg: typing.Any) -> None:
             """Set the JavascriptCanOpenWindows setting to its old value."""
-            assert view is not None
+            if view is None:
+                raise AssertionError
             try:
                 view.settings().setAttribute(attribute, could_open_windows)
             except RuntimeError:

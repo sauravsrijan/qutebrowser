@@ -157,7 +157,8 @@ class _BaseUserscriptRunner(QObject):
             env: A dictionary of environment variables to add.
             verbose: Show notifications when the command started/exited.
         """
-        assert self._filepath is not None
+        if self._filepath is None:
+            raise AssertionError
         self._env['QUTE_FIFO'] = self._filepath
         if env is not None:
             self._env.update(env)
@@ -173,7 +174,8 @@ class _BaseUserscriptRunner(QObject):
         """Clean up temporary files."""
         if self._cleaned_up:
             return
-        assert self._filepath is not None
+        if self._filepath is None:
+            raise AssertionError
         self._cleaned_up = True
 
         tempfiles = [self._filepath]
@@ -275,7 +277,8 @@ class _POSIXUserscriptRunner(_BaseUserscriptRunner):
         """Clean up reader and temporary files."""
         if self._cleaned_up:
             return
-        assert self._reader is not None
+        if self._reader is None:
+            raise AssertionError
 
         log.procs.debug("Cleaning up")
         self._reader.cleanup()
@@ -302,7 +305,8 @@ class _WindowsUserscriptRunner(_BaseUserscriptRunner):
         """Clean up temporary files after the userscript finished."""
         if self._cleaned_up:
             return
-        assert self._filepath is not None
+        if self._filepath is None:
+            raise AssertionError
 
         try:
             with open(self._filepath, 'r', encoding='utf-8') as f:

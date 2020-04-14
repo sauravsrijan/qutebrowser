@@ -688,8 +688,10 @@ def read_config_py(filename: str, raising: bool = False) -> None:
         raising: Raise exceptions happening in config.py.
                  This is needed during tests to use pytest's inspection.
     """
-    assert config.instance is not None
-    assert config.key_instance is not None
+    if config.instance is None:
+        raise AssertionError
+    if config.key_instance is None:
+        raise AssertionError
 
     api = ConfigAPI(config.instance, config.key_instance)
     container = config.ConfigContainer(config.instance, configapi=api)

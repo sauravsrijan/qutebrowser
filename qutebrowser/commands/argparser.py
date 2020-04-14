@@ -114,7 +114,8 @@ def type_conv(param, typ, value, *, str_choices=None):
     if value is param.default:
         return value
 
-    assert isinstance(value, str), repr(value)
+    if not isinstance(value, str):
+        raise AssertionError(repr(value))
 
     if utils.is_enum(typ):
         _check_choices(param, value, [arg_name(e.name) for e in typ])

@@ -51,7 +51,8 @@ class HistoryCategory(QSqlQueryModel):
         """If max_items is set, return an expression to limit the query."""
         max_items = config.val.completion.web_history.max_items
         # HistoryCategory should not be added to the completion in that case.
-        assert max_items != 0
+        if max_items == 0:
+            raise AssertionError
 
         if max_items < 0:
             return ''
@@ -133,7 +134,8 @@ class HistoryCategory(QSqlQueryModel):
     def removeRows(self, row, _count, _parent=None):
         """Override QAbstractItemModel::removeRows to re-run SQL query."""
         # re-run query to reload updated table
-        assert self._query is not None
+        if self._query is None:
+            raise AssertionError
         with debug.log_time('sql', 'Re-running completion query post-delete'):
             self._query.run()
         self.setQuery(self._query.query)

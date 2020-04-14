@@ -43,9 +43,11 @@ class WebEngineView(QWebEngineView):
 
         theme_color = self.style().standardPalette().color(QPalette.Base)
         if private:
-            assert webenginesettings.private_profile is not None
+            if webenginesettings.private_profile is None:
+                raise AssertionError
             profile = webenginesettings.private_profile
-            assert profile.isOffTheRecord()
+            if not profile.isOffTheRecord():
+                raise AssertionError
         else:
             profile = webenginesettings.default_profile
         page = WebEnginePage(theme_color=theme_color, profile=profile,

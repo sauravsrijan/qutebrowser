@@ -382,7 +382,8 @@ class DownloadItemStats(QObject):
         elif self.total is None:
             return None
         else:
-            assert self.done is not None
+            if self.done is None:
+                raise AssertionError
             return 100 * self.done / self.total
 
     def remaining_time(self):
@@ -509,7 +510,8 @@ class AbstractDownloadItem(QObject):
 
     def _die(self, msg):
         """Abort the download and emit an error."""
-        assert not self.successful
+        if self.successful:
+            raise AssertionError
         # Prevent actions if calling _die() twice.
         #
         # For QtWebKit, this might happen if the error handler correctly
@@ -543,7 +545,8 @@ class AbstractDownloadItem(QObject):
         Args:
             position: The color type requested, can be 'fg' or 'bg'.
         """
-        assert position in ["fg", "bg"]
+        if position not in ["fg", "bg"]:
+            raise AssertionError
         # pylint: disable=bad-config-option
         start = getattr(config.val.colors.downloads.start, position)
         stop = getattr(config.val.colors.downloads.stop, position)
@@ -551,7 +554,8 @@ class AbstractDownloadItem(QObject):
         error = getattr(config.val.colors.downloads.error, position)
         # pylint: enable=bad-config-option
         if self.error_msg is not None:
-            assert not self.successful
+            if self.successful:
+                raise AssertionError
             return error
         elif self.stats.percentage() is None:
             return start
@@ -729,7 +733,8 @@ class AbstractDownloadItem(QObject):
             remember_directory: If True, remember the directory for future
                                 downloads.
         """
-        assert self._filename is not None
+        if self._filename is None:
+            raise AssertionError
         global last_used_directory
 
         try:
@@ -996,7 +1001,8 @@ class DownloadModel(QAbstractListModel):
             self.beginInsertRows(QModelIndex(), 0, -1)
             return
 
-        assert idx >= 0, idx
+        if idx < 0:
+            raise AssertionError(idx)
         if webengine:
             idx += len(self._qtnetwork_manager.downloads)
         self.beginInsertRows(QModelIndex(), idx, idx)
@@ -1008,7 +1014,8 @@ class DownloadModel(QAbstractListModel):
             self.beginRemoveRows(QModelIndex(), 0, -1)
             return
 
-        assert idx >= 0, idx
+        if idx < 0:
+            raise AssertionError(idx)
         if webengine:
             idx += len(self._qtnetwork_manager.downloads)
         self.beginRemoveRows(QModelIndex(), idx, idx)

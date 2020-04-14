@@ -306,7 +306,8 @@ class AbstractSearch(QObject):
         Arguments:
             ignore_case: The ignore_case value from the config.
         """
-        assert self.text is not None
+        if self.text is None:
+            raise AssertionError
         mapping = {
             usertypes.IgnoreCase.smart: not self.text.islower(),
             usertypes.IgnoreCase.never: True,
@@ -1009,7 +1010,8 @@ class AbstractTab(QWidget):
 
     @pyqtSlot(bool)
     def _on_load_finished(self, ok: bool) -> None:
-        assert self._widget is not None
+        if self._widget is None:
+            raise AssertionError
         if sip.isdeleted(self._widget):
             # https://github.com/qutebrowser/qutebrowser/issues/3498
             return
@@ -1134,5 +1136,6 @@ class AbstractTab(QWidget):
         return utils.get_repr(self, tab_id=self.tab_id, url=url)
 
     def is_deleted(self) -> bool:
-        assert self._widget is not None
+        if self._widget is None:
+            raise AssertionError
         return sip.isdeleted(self._widget)

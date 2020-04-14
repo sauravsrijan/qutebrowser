@@ -39,7 +39,8 @@ class QuteSchemeHandler(QWebEngineUrlSchemeHandler):
     def install(self, profile):
         """Install the handler for qute:// URLs on the given profile."""
         if QWebEngineUrlScheme is not None:
-            assert QWebEngineUrlScheme.schemeByName(b'qute') is not None
+            if QWebEngineUrlScheme.schemeByName(b'qute') is None:
+                raise AssertionError
 
         profile.installUrlSchemeHandler(b'qute', self)
         if (qtutils.version_check('5.11', compiled=False) and
@@ -117,7 +118,8 @@ class QuteSchemeHandler(QWebEngineUrlSchemeHandler):
             job.fail(QWebEngineUrlRequestJob.RequestDenied)
             return
 
-        assert url.scheme() == 'qute'
+        if url.scheme() != 'qute':
+            raise AssertionError
 
         log.misc.debug("Got request for {}".format(url.toDisplayString()))
         try:
@@ -163,7 +165,8 @@ def init():
     classes.
     """
     if QWebEngineUrlScheme is not None:
-        assert not QWebEngineUrlScheme.schemeByName(b'qute').name()
+        if QWebEngineUrlScheme.schemeByName(b'qute').name():
+            raise AssertionError
         scheme = QWebEngineUrlScheme(b'qute')
         scheme.setFlags(QWebEngineUrlScheme.LocalScheme |
                         QWebEngineUrlScheme.LocalAccessAllowed)

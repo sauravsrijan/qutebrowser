@@ -164,12 +164,14 @@ _SPECIAL_NAMES = _build_special_names()
 
 def _assert_plain_key(key: Qt.Key) -> None:
     """Make sure this is a key without KeyboardModifiers mixed in."""
-    assert not key & Qt.KeyboardModifierMask, hex(key)
+    if key & Qt.KeyboardModifierMask:
+        raise AssertionError(hex(key))
 
 
 def _assert_plain_modifier(key: Qt.KeyboardModifier) -> None:
     """Make sure this is a modifier without a key mixed in."""
-    assert not key & ~Qt.KeyboardModifierMask, hex(key)
+    if key & ~Qt.KeyboardModifierMask:
+        raise AssertionError(hex(key))
 
 
 def _is_printable(key: Qt.Key) -> bool:
@@ -318,7 +320,8 @@ def _parse_keystring(keystr: str) -> typing.Iterator[str]:
                 special = False
             else:
                 yield '>'
-                assert not key, key
+                if key:
+                    raise AssertionError(key)
         elif c == '<':
             special = True
         elif special:
@@ -416,12 +419,15 @@ class KeyInfo:
                 raise ValueError("Got empty string for key 0x{:x}!"
                                  .format(self.key))
 
-            assert len(key_string) == 1, key_string
+            if len(key_string) != 1:
+                raise AssertionError(key_string)
             if self.modifiers == Qt.ShiftModifier:
-                assert not is_special(self.key, self.modifiers)
+                if is_special(self.key, self.modifiers):
+                    raise AssertionError
                 return key_string.upper()
             elif self.modifiers == Qt.NoModifier:
-                assert not is_special(self.key, self.modifiers)
+                if is_special(self.key, self.modifiers):
+                    raise AssertionError
                 return key_string.lower()
             else:
                 # Use special binding syntax, but <Ctrl-a> instead of <Ctrl-A>
@@ -430,7 +436,8 @@ class KeyInfo:
         modifiers = Qt.KeyboardModifier(modifiers)
 
         # "special" binding
-        assert is_special(self.key, self.modifiers)
+        if not is_special(self.key, self.modifiers):
+            raise AssertionError
         modifier_string = _modifiers_to_string(modifiers)
         return '<{}{}>'.format(modifier_string, key_string)
 
@@ -490,12 +497,14 @@ class KeySequence:
             sequence = QKeySequence(*args)
             self._sequences.append(sequence)
         if keys:
-            assert self
+            if not self:
+                raise AssertionError
         self._validate()
 
     def _convert_key(self, key: Qt.Key) -> int:
         """Convert a single key for QKeySequence."""
-        assert isinstance(key, (int, Qt.KeyboardModifiers)), key
+        if not isinstance(key, (int, Qt.KeyboardModifiers)):
+            raise AssertionError(key)
         return int(key)
 
     def __str__(self) -> str:
@@ -681,7 +690,8 @@ class KeySequence:
             key_seq = KeySequence(key)
             if key_seq in mappings:
                 new_seq = mappings[key_seq]
-                assert len(new_seq) == 1
+                if len(new_seq) != 1:
+                    raise AssertionError
                 key = new_seq[0].to_int()
             keys.append(key)
         return self.__class__(*keys)
@@ -697,7 +707,8 @@ class KeySequence:
             new._sequences.append(sequence)
 
         if keystr:
-            assert new, keystr
+            if not new:
+                raise AssertionError(keystr)
 
         # pylint: disable=protected-access
         new._validate(keystr)

@@ -625,8 +625,10 @@ class WebKitElements(browsertab.AbstractElements):
             callback(webkitelem.WebKitElement(elem, tab=self._tab))
 
     def find_at_pos(self, pos, callback):
-        assert pos.x() >= 0
-        assert pos.y() >= 0
+        if pos.x() < 0:
+            raise AssertionError
+        if pos.y() < 0:
+            raise AssertionError
         frame = self._widget.page().frameAt(pos)
         if frame is None:
             # This happens when we click inside the webview, but not actually
