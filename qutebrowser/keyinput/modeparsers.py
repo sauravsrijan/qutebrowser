@@ -246,7 +246,8 @@ class HintKeyParser(CommandKeyParser):
             log.keyboard.debug("Got special key, clearing keychain")
             self.clear_keystring()
 
-        assert not dry_run
+        if dry_run:
+            raise AssertionError
         match = super().handle(e)
 
         if match == QKeySequence.PartialMatch:

@@ -168,7 +168,8 @@ class CompletionView(QTreeView):
             pixel_widths[-2] -= delta
 
         for i, w in enumerate(pixel_widths):
-            assert w >= 0, i
+            if w < 0:
+                raise AssertionError(i)
             self.setColumnWidth(i, w)
 
     def _next_idx(self, upwards):

@@ -95,7 +95,8 @@ class NoOptionError(Error):
                  deleted: bool = False,
                  renamed: str = None) -> None:
         if deleted:
-            assert renamed is None
+            if renamed is not None:
+                raise AssertionError
             suffix = ' (this option was removed from qutebrowser)'
         elif renamed is not None:
             suffix = ' (this option was renamed to {!r})'.format(renamed)

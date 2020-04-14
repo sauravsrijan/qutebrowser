@@ -645,7 +645,8 @@ class CommandDispatcher:
 
     def _yank_url(self, what):
         """Helper method for yank() to get the URL to copy."""
-        assert what in ['url', 'pretty-url', 'markdown'], what
+        if what not in ['url', 'pretty-url', 'markdown']:
+            raise AssertionError(what)
         flags = QUrl.RemovePassword
         if what == 'pretty-url':
             flags |= QUrl.DecodeReserved  # type: ignore
@@ -755,7 +756,8 @@ class CommandDispatcher:
         """
         cmdutils.check_exclusive((prev, next_), 'pn')
         cur_idx = self._tabbed_browser.widget.currentIndex()
-        assert cur_idx != -1
+        if cur_idx == -1:
+            raise AssertionError
 
         def _to_close(i):
             """Helper method to check if a tab should be closed or not."""
@@ -930,14 +932,16 @@ class CommandDispatcher:
         index = count if count is not None else index
 
         if index in {'last', 'stack-next', 'stack-prev'}:
-            assert isinstance(index, str)
+            if not isinstance(index, str):
+                raise AssertionError
             self._tab_focus_stack(index)
             return
         elif index is None:
             self.tab_next()
             return
 
-        assert isinstance(index, int)
+        if not isinstance(index, int):
+            raise AssertionError
 
         if index < 0:
             index = self._count() + index + 1
@@ -985,7 +989,8 @@ class CommandDispatcher:
             if count is not None:
                 new_idx = count - 1
             elif index is not None:
-                assert isinstance(index, int)
+                if not isinstance(index, int):
+                    raise AssertionError
                 new_idx = index - 1 if index >= 0 else index + self._count()
             else:
                 new_idx = 0
@@ -1416,7 +1421,8 @@ class CommandDispatcher:
         if text is None:
             message.error("Could not get text from the focused element.")
             return
-        assert isinstance(text, str), text
+        if not isinstance(text, str):
+            raise AssertionError(text)
 
         caret_position = elem.caret_position()
 

@@ -348,7 +348,8 @@ class _Downloader:
         Args:
             url: The file to download as QUrl.
         """
-        assert self.writer is not None
+        if self.writer is None:
+            raise AssertionError
 
         if url.scheme() not in ['http', 'https']:
             return
@@ -389,7 +390,8 @@ class _Downloader:
             url: The original url of the asset as QUrl.
             item: The DownloadItem given by the DownloadManager
         """
-        assert self.writer is not None
+        if self.writer is None:
+            raise AssertionError
 
         self.pending_downloads.remove((url, item))
         mime = item.raw_headers.get(b'Content-Type', b'')
@@ -441,7 +443,8 @@ class _Downloader:
             url: The original url of the asset as QUrl.
             item: The DownloadItem given by the DownloadManager.
         """
-        assert self.writer is not None
+        if self.writer is None:
+            raise AssertionError
         try:
             self.pending_downloads.remove((url, item))
         except KeyError:
@@ -472,7 +475,8 @@ class _Downloader:
 
     def _finish_file(self):
         """Save the file to the filename given in __init__."""
-        assert self.writer is not None
+        if self.writer is None:
+            raise AssertionError
 
         if self._finished_file:
             log.downloads.debug("finish_file called twice, ignored!")

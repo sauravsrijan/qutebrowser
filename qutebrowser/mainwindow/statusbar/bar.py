@@ -81,7 +81,8 @@ class ColorFlags:
         elif self.caret == self.CaretMode.selection:
             strings.append('caret-selection')
         else:
-            assert self.caret == self.CaretMode.off
+            if self.caret != self.CaretMode.off:
+                raise AssertionError
 
         return strings
 
@@ -215,7 +216,8 @@ class StatusBar(QWidget):
         for widget in [self.url, self.percentage,
                        self.backforward, self.tabindex,
                        self.keystring, self.prog]:
-            assert isinstance(widget, QWidget)
+            if not isinstance(widget, QWidget):
+                raise AssertionError
             widget.hide()
             self._hbox.removeWidget(widget)
 
@@ -370,7 +372,8 @@ class StatusBar(QWidget):
         self.percentage.on_tab_changed(tab)
         self.backforward.on_tab_changed(tab)
         self.maybe_hide()
-        assert tab.is_private == self._color_flags.private
+        if tab.is_private != self._color_flags.private:
+            raise AssertionError
 
     @pyqtSlot(bool)
     def on_caret_selection_toggled(self, selection):

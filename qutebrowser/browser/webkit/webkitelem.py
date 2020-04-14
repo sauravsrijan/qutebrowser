@@ -76,7 +76,8 @@ class WebKitElement(webelem.AbstractWebElement):
         self._elem.removeAttribute(key)
 
     def __contains__(self, key: object) -> bool:
-        assert isinstance(key, str)
+        if not isinstance(key, str):
+            raise AssertionError
         self._check_vanished()
         return self._elem.hasAttribute(key)
 
@@ -118,7 +119,8 @@ class WebKitElement(webelem.AbstractWebElement):
     def value(self) -> webelem.JsValueType:
         self._check_vanished()
         val = self._elem.evaluateJavaScript('this.value')
-        assert isinstance(val, (int, float, str, type(None))), val
+        if not isinstance(val, (int, float, str, type(None))):
+            raise AssertionError(val)
         return val
 
     def set_value(self, value: webelem.JsValueType) -> None:
@@ -127,7 +129,8 @@ class WebKitElement(webelem.AbstractWebElement):
             raise webelem.OrphanedError("Tab containing element vanished")
         if self.is_content_editable():
             log.webelem.debug("Filling {!r} via set_text.".format(self))
-            assert isinstance(value, str)
+            if not isinstance(value, str):
+                raise AssertionError
             self._elem.setPlainText(value)
         else:
             log.webelem.debug("Filling {!r} via javascript.".format(self))

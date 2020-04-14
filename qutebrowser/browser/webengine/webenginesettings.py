@@ -249,7 +249,8 @@ class ProfileSetter:
 
     def set_persistent_cookie_policy(self):
         """Set the HTTP Cookie size for the given profile."""
-        assert not self._profile.isOffTheRecord()
+        if self._profile.isOffTheRecord():
+            raise AssertionError
         if config.val.content.cookies.store:
             value = QWebEngineProfile.AllowPersistentCookies
         else:
@@ -326,7 +327,8 @@ def _init_profiles():
     if not qtutils.is_single_process():
         private_profile = QWebEngineProfile()
         private_profile.setter = ProfileSetter(private_profile)
-        assert private_profile.isOffTheRecord()
+        if not private_profile.isOffTheRecord():
+            raise AssertionError
         private_profile.setter.init_profile()
 
 

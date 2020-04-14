@@ -296,7 +296,8 @@ class ModeManager(QObject):
     def register(self, mode: usertypes.KeyMode,
                  parser: basekeyparser.BaseKeyParser) -> None:
         """Register a new mode."""
-        assert parser is not None
+        if parser is None:
+            raise AssertionError
         self.parsers[mode] = parser
         parser.request_leave.connect(self.leave)
 

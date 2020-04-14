@@ -228,7 +228,8 @@ class Command:
             # parameters, but many built-in and extension module functions
             # (especially those that accept only one or two parameters) accept
             # them."
-            assert param.kind != inspect.Parameter.POSITIONAL_ONLY
+            if param.kind == inspect.Parameter.POSITIONAL_ONLY:
+                raise AssertionError
             if param.name == 'self':
                 continue
             if self._inspect_special_param(param):
@@ -304,7 +305,8 @@ class Command:
         name = argparser.arg_name(param.name)
         arg_info = self.get_arg_info(param)
 
-        assert not arg_info.value, name
+        if arg_info.value:
+            raise AssertionError(name)
 
         if arg_info.flag is not None:
             shortname = arg_info.flag
@@ -341,7 +343,8 @@ class Command:
         elif param.kind in [inspect.Parameter.VAR_POSITIONAL,
                             inspect.Parameter.VAR_KEYWORD]:
             # For *args/**kwargs we only support strings
-            assert param.annotation in [inspect.Parameter.empty, str], param
+            if param.annotation not in [inspect.Parameter.empty, str]:
+                raise AssertionError(param)
             return None
         elif param.annotation is not inspect.Parameter.empty:
             return param.annotation
@@ -430,7 +433,8 @@ class Command:
             choices = self.get_arg_info(param).choices
             value = argparser.type_conv(param, typ, value, str_choices=choices)
         elif typ is bool:  # no type conversion for flags
-            assert isinstance(value, bool)
+            if not isinstance(value, bool):
+                raise AssertionError
         elif typ is None:
             pass
         else:
@@ -452,7 +456,8 @@ class Command:
         """
         arg_info = self.get_arg_info(param)
         if pos == 0 and self._instance is not None:
-            assert param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+            if param.kind != inspect.Parameter.POSITIONAL_OR_KEYWORD:
+                raise AssertionError
             self_value = self._get_objreg(win_id=win_id, name=self._instance,
                                           scope=self._scope)
             self._add_special_arg(value=self_value, param=param,
@@ -460,7 +465,8 @@ class Command:
             return True
         elif arg_info.value == usertypes.CommandValue.count:
             if self._count is None:
-                assert param.default is not inspect.Parameter.empty
+                if param.default is inspect.Parameter.empty:
+                    raise AssertionError
                 value = param.default
             else:
                 value = self._count

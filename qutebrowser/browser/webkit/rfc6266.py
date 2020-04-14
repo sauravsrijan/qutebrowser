@@ -245,12 +245,14 @@ class _ContentDisposition:
 
     def __init__(self, disposition, assocs):
         """Used internally after parsing the header."""
-        assert len(disposition) == 1
+        if len(disposition) != 1:
+            raise AssertionError
         self.disposition = disposition[0]
         self.assocs = dict(assocs)  # So we can change values
         if 'filename*' in self.assocs:
             param = self.assocs['filename*']
-            assert isinstance(param, ExtDispositionParm)
+            if not isinstance(param, ExtDispositionParm):
+                raise AssertionError
             self.assocs['filename*'] = parse_ext_value(param.value).string
 
     def filename(self):

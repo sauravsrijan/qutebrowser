@@ -82,15 +82,19 @@ class CompletionItemDelegate(QStyledItemDelegate):
 
     def _draw_background(self):
         """Draw the background of an ItemViewItem."""
-        assert self._opt is not None
-        assert self._style is not None
+        if self._opt is None:
+            raise AssertionError
+        if self._style is None:
+            raise AssertionError
         self._style.drawPrimitive(self._style.PE_PanelItemViewItem, self._opt,
                                   self._painter, self._opt.widget)
 
     def _draw_icon(self):
         """Draw the icon of an ItemViewItem."""
-        assert self._opt is not None
-        assert self._style is not None
+        if self._opt is None:
+            raise AssertionError
+        if self._style is None:
+            raise AssertionError
 
         icon_rect = self._style.subElementRect(
             self._style.SE_ItemViewItemDecoration, self._opt, self._opt.widget)
@@ -117,9 +121,12 @@ class CompletionItemDelegate(QStyledItemDelegate):
         Args:
             index: The QModelIndex of the item to draw.
         """
-        assert self._opt is not None
-        assert self._painter is not None
-        assert self._style is not None
+        if self._opt is None:
+            raise AssertionError
+        if self._painter is None:
+            raise AssertionError
+        if self._style is None:
+            raise AssertionError
         if not self._opt.text:
             return
 
@@ -169,9 +176,12 @@ class CompletionItemDelegate(QStyledItemDelegate):
         Args:
             rect: The QRect to clip the drawing to.
         """
-        assert self._painter is not None
-        assert self._doc is not None
-        assert self._opt is not None
+        if self._painter is None:
+            raise AssertionError
+        if self._doc is None:
+            raise AssertionError
+        if self._opt is None:
+            raise AssertionError
 
         # We can't use drawContents because then the color would be ignored.
         clip = QRectF(0, 0, rect.width(), rect.height())
@@ -201,7 +211,8 @@ class CompletionItemDelegate(QStyledItemDelegate):
         Args:
             index: The QModelIndex of the item to draw.
         """
-        assert self._opt is not None
+        if self._opt is None:
+            raise AssertionError
         # FIXME we probably should do eliding here. See
         # qcommonstyle.cpp:viewItemDrawText
         # https://github.com/qutebrowser/qutebrowser/issues/118
@@ -241,8 +252,10 @@ class CompletionItemDelegate(QStyledItemDelegate):
 
     def _draw_focus_rect(self):
         """Draw the focus rectangle of an ItemViewItem."""
-        assert self._opt is not None
-        assert self._style is not None
+        if self._opt is None:
+            raise AssertionError
+        if self._style is None:
+            raise AssertionError
         state = self._opt.state
         if not state & QStyle.State_HasFocus:
             return
@@ -284,7 +297,8 @@ class CompletionItemDelegate(QStyledItemDelegate):
         self._style = self._opt.widget.style()
 
         self._get_textdoc(index)
-        assert self._doc is not None
+        if self._doc is None:
+            raise AssertionError
 
         docsize = self._doc.size().toSize()
         size = self._style.sizeFromContents(QStyle.CT_ItemViewItem, self._opt,

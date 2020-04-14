@@ -150,7 +150,8 @@ class KeyConfig:
     def _validate(self, key: keyutils.KeySequence, mode: str) -> None:
         """Validate the given key and mode."""
         # Catch old usage of this code
-        assert isinstance(key, keyutils.KeySequence), key
+        if not isinstance(key, keyutils.KeySequence):
+            raise AssertionError(key)
         if mode not in configdata.DATA['bindings.default'].default:
             raise configexc.KeybindingError("Invalid mode {}!".format(mode))
 
@@ -373,7 +374,8 @@ class Config(QObject):
             return copy.deepcopy(value)
         else:
             # Shouldn't be mutable (and thus hashable)
-            assert value.__hash__ is not None, value
+            if value.__hash__ is None:
+                raise AssertionError(value)
             return value
 
     def get_obj(self,

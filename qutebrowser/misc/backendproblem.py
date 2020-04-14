@@ -339,12 +339,16 @@ class _BackendProblemChecker:
         else:
             results.webengine_available = True
 
-        assert results.webkit_available is not None
-        assert results.webengine_available is not None
+        if results.webkit_available is None:
+            raise AssertionError
+        if results.webengine_available is None:
+            raise AssertionError
         if not results.webkit_available:
-            assert results.webkit_error is not None
+            if results.webkit_error is None:
+                raise AssertionError
         if not results.webengine_available:
-            assert results.webengine_error is not None
+            if results.webengine_error is None:
+                raise AssertionError
 
         return results
 
@@ -370,7 +374,8 @@ class _BackendProblemChecker:
             errbox.exec_()
             sys.exit(usertypes.Exit.err_init)
 
-        assert not fatal
+        if fatal:
+            raise AssertionError
         log.init.warning(text)
 
     def _check_backend_modules(self) -> None:
@@ -476,7 +481,8 @@ class _BackendProblemChecker:
         shutil.move(service_worker_dir, bak_dir)
 
     def _assert_backend(self, backend: usertypes.Backend) -> None:
-        assert objects.backend == backend, objects.backend
+        if objects.backend != backend:
+            raise AssertionError(objects.backend)
 
     def check(self) -> None:
         """Run all checks."""

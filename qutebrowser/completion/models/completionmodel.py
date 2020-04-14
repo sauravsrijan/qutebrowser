@@ -226,7 +226,8 @@ class CompletionModel(QAbstractItemModel):
         qtutils.ensure_valid(index)
         parent = index.parent()
         cat = self._cat_from_idx(parent)
-        assert cat, "CompletionView sent invalid index for deletion"
+        if not cat:
+            raise AssertionError("CompletionView sent invalid index for deletion")
         if not cat.delete_func:
             raise cmdutils.CommandError("Cannot delete this item.")
 

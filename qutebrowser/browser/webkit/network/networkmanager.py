@@ -186,7 +186,8 @@ class NetworkManager(QNetworkAccessManager):
             cookie_jar = cookies.ram_cookie_jar
         else:
             cookie_jar = cookies.cookie_jar
-        assert cookie_jar is not None
+        if cookie_jar is None:
+            raise AssertionError
 
         # We have a shared cookie jar - we restore its parent so we don't
         # take ownership of it.
@@ -212,7 +213,8 @@ class NetworkManager(QNetworkAccessManager):
         # This might be a generic network manager, e.g. one belonging to a
         # DownloadManager. In this case, just skip the webview thing.
         if self._tab_id is not None:
-            assert self._win_id is not None
+            if self._win_id is None:
+                raise AssertionError
             tab = objreg.get('tab', scope='tab', window=self._win_id,
                              tab=self._tab_id)
             abort_on.append(tab.load_started)
@@ -245,7 +247,8 @@ class NetworkManager(QNetworkAccessManager):
             is_accepted = False
             is_rejected = False
         else:
-            assert host_tpl is not None
+            if host_tpl is None:
+                raise AssertionError
             is_accepted = set(errors).issubset(
                 self._accepted_ssl_errors[host_tpl])
             is_rejected = set(errors).issubset(
@@ -336,7 +339,8 @@ class NetworkManager(QNetworkAccessManager):
         self.adopted_downloads -= 1
         log.downloads.debug("Adopted download destroyed, {} left.".format(
             self.adopted_downloads))
-        assert self.adopted_downloads >= 0
+        if self.adopted_downloads < 0:
+            raise AssertionError
         if self.adopted_downloads == 0:
             self.deleteLater()
 
@@ -402,7 +406,8 @@ class NetworkManager(QNetworkAccessManager):
         current_url = QUrl()
 
         if self._tab_id is not None:
-            assert self._win_id is not None
+            if self._win_id is None:
+                raise AssertionError
             try:
                 tab = objreg.get('tab', scope='tab', window=self._win_id,
                                  tab=self._tab_id)
