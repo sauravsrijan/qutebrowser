@@ -93,7 +93,8 @@ class UrlPattern:
         except ValueError as e:
             raise ParseError(str(e))
 
-        assert parsed is not None
+        if parsed is None:
+            raise AssertionError
 
         self._init_scheme(parsed)
         self._init_host(parsed)
@@ -178,7 +179,8 @@ class UrlPattern:
         if parsed.hostname is None or not parsed.hostname.strip():
             if self._scheme not in self._SCHEMES_WITHOUT_HOST:
                 raise ParseError("Pattern without host")
-            assert self.host is None
+            if self.host is not None:
+                raise AssertionError
             return
 
         if parsed.netloc.startswith('['):

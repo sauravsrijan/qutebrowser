@@ -100,7 +100,8 @@ def distribution() -> typing.Optional[DistributionInfo]:
     pretty = info.get('PRETTY_NAME', None)
     if pretty in ['Linux', None]:  # Funtoo has PRETTY_NAME=Linux
         pretty = info.get('NAME', 'Unknown')
-    assert pretty is not None
+    if pretty is None:
+        raise AssertionError
 
     if 'VERSION_ID' in info:
         dist_version = pkg_resources.parse_version(
@@ -376,7 +377,8 @@ def _chromium_version() -> str:
 
     if webenginesettings.parsed_user_agent is None:
         webenginesettings.init_user_agent()
-        assert webenginesettings.parsed_user_agent is not None
+        if webenginesettings.parsed_user_agent is None:
+            raise AssertionError
 
     return webenginesettings.parsed_user_agent.upstream_browser_version
 
@@ -387,7 +389,8 @@ def _backend() -> str:
         return 'new QtWebKit (WebKit {})'.format(qWebKitVersion())
     else:
         webengine = usertypes.Backend.QtWebEngine
-        assert objects.backend == webengine, objects.backend
+        if objects.backend != webengine:
+            raise AssertionError(objects.backend)
         return 'QtWebEngine (Chromium {})'.format(_chromium_version())
 
 
@@ -493,7 +496,8 @@ def opengl_vendor() -> typing.Optional[str]:  # pragma: no cover
     'Intel Open Source Technology Center'; or None if the vendor can't be
     determined.
     """
-    assert QApplication.instance()
+    if not QApplication.instance():
+        raise AssertionError
 
     override = os.environ.get('QUTE_FAKE_OPENGL_VENDOR')
     if override is not None:
@@ -550,7 +554,8 @@ def pastebin_version(pbclient: pastebin.PastebinClient = None) -> None:
         message.info("Version url {} yanked to clipboard.".format(url))
 
     def _on_paste_version_success(url: str) -> None:
-        assert pbclient is not None
+        if pbclient is None:
+            raise AssertionError
         global pastebin_url
         url = url.strip()
         _yank_url(url)
@@ -558,7 +563,8 @@ def pastebin_version(pbclient: pastebin.PastebinClient = None) -> None:
         pastebin_url = url
 
     def _on_paste_version_err(text: str) -> None:
-        assert pbclient is not None
+        if pbclient is None:
+            raise AssertionError
         message.error("Failed to pastebin version"
                       " info: {}".format(text))
         pbclient.deleteLater()

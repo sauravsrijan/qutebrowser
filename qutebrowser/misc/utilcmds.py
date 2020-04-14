@@ -132,7 +132,8 @@ def debug_console() -> None:
         log.misc.debug('initializing debug console')
         consolewidget.init()
 
-    assert consolewidget.console_widget is not None
+    if consolewidget.console_widget is None:
+        raise AssertionError
 
     if consolewidget.console_widget.isVisible():
         log.misc.debug('hiding debug console')
@@ -219,7 +220,8 @@ def log_capacity(capacity: int) -> None:
     """
     if capacity < 0:
         raise cmdutils.CommandError("Can't set a negative log capacity!")
-    assert log.ram_handler is not None
+    if log.ram_handler is None:
+        raise AssertionError
     log.ram_handler.change_log_capacity(capacity)
 
 

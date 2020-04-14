@@ -109,7 +109,8 @@ class GUIProcess(QObject):
             if self.verbose:
                 message.info(exitinfo)
         else:
-            assert status == QProcess.NormalExit
+            if status != QProcess.NormalExit:
+                raise AssertionError
             # We call this 'status' here as it makes more sense to the user -
             # it's actually 'code'.
             exitinfo = ("{} exited with status {}, see :messages for "
@@ -138,7 +139,8 @@ class GUIProcess(QObject):
     def _on_started(self):
         """Called when the process started successfully."""
         log.procs.debug("Process started.")
-        assert not self._started
+        if self._started:
+            raise AssertionError
         self._started = True
 
     def _pre_start(self, cmd, args):

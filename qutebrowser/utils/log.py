@@ -227,7 +227,8 @@ def shutdown_log() -> None:
 
 def _init_py_warnings() -> None:
     """Initialize Python warning handling."""
-    assert _args is not None
+    if _args is None:
+        raise AssertionError
     warnings.simplefilter('error' if 'werror' in _args.debug_flags
                           else 'default')
     warnings.filterwarnings('ignore', module='pdb', category=ResourceWarning)
@@ -365,7 +366,8 @@ def change_console_formatter(level: int) -> None:
     Args:
         level: The numeric logging level
     """
-    assert console_handler is not None
+    if console_handler is None:
+        raise AssertionError
 
     old_formatter = typing.cast(ColoredFormatter, console_handler.formatter)
     console_fmt = get_console_format(level)
@@ -500,7 +502,8 @@ def qt_message_handler(msg_type: QtCore.QtMsgType,
                 "    pacman -S libxkbcommon-x11")
         faulthandler.disable()
 
-    assert _args is not None
+    if _args is None:
+        raise AssertionError
     if _args.debug:
         stack = ''.join(traceback.format_stack())  # type: typing.Optional[str]
     else:
@@ -612,7 +615,8 @@ class RAMHandler(logging.Handler):
         minlevel = LOG_LEVELS.get(level.upper(), VDEBUG_LEVEL)
 
         if html:
-            assert self.html_formatter is not None
+            if self.html_formatter is None:
+                raise AssertionError
             fmt = self.html_formatter.format
         else:
             fmt = self.format

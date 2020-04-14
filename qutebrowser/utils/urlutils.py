@@ -137,7 +137,8 @@ def _is_url_naive(urlstr: str) -> bool:
         True if the URL really is a URL, False otherwise.
     """
     url = qurl_from_user_input(urlstr)
-    assert url.isValid()
+    if not url.isValid():
+        raise AssertionError
     host = url.host()
 
     # Valid IPv4/IPv6 address. Qt converts things like "23.42" or "1337" or
@@ -162,7 +163,8 @@ def _is_url_dns(urlstr: str) -> bool:
         True if the URL really is a URL, False otherwise.
     """
     url = qurl_from_user_input(urlstr)
-    assert url.isValid()
+    if not url.isValid():
+        raise AssertionError
 
     if (utils.raises(ValueError, ipaddress.ip_address, urlstr) and
             not QHostAddress(urlstr).isNull()):
@@ -445,7 +447,8 @@ def host_tuple(url: QUrl) -> HostTupleType:
     """
     ensure_valid(url)
     scheme, host, port = url.scheme(), url.host(), url.port()
-    assert scheme
+    if not scheme:
+        raise AssertionError
     if not host:
         raise ValueError("Got URL {} without host.".format(
             url.toDisplayString()))

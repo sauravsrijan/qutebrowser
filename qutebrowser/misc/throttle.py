@@ -66,7 +66,8 @@ class Throttle(QObject):
 
     def _call_pending(self) -> None:
         """Start a pending call."""
-        assert self._pending_call is not None
+        if self._pending_call is None:
+            raise AssertionError
         self._func(*self._pending_call.args, **self._pending_call.kwargs)
         self._pending_call = None
         self._last_call_ms = int(time.monotonic() * 1000)

@@ -190,7 +190,8 @@ class Quitter(QObject):
 
         # Make sure we're not accepting a connection from the new process
         # before we fully exited.
-        assert ipc.server is not None
+        if ipc.server is None:
+            raise AssertionError
         ipc.server.shutdown()
 
         # Open a new process and immediately shutdown the existing one

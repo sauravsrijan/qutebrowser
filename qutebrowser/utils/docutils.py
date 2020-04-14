@@ -158,10 +158,12 @@ class DocstringParser:
     def _parse_arg_inside(self, line: str) -> bool:
         """Parse subsequent argument lines."""
         argname = self._cur_arg_name
-        assert argname is not None
+        if argname is None:
+            raise AssertionError
 
         descs = self.arg_descs[argname]
-        assert isinstance(descs, list)
+        if not isinstance(descs, list):
+            raise AssertionError
 
         if re.fullmatch(r'[A-Z][a-z]+:', line):
             if not descs[-1].strip():

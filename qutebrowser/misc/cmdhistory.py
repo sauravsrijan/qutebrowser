@@ -104,7 +104,8 @@ class History(QObject):
         """
         if not self.is_browsing():
             raise ValueError("Currently not browsing history")
-        assert self._tmphist is not None
+        if self._tmphist is None:
+            raise AssertionError
 
         try:
             return self._tmphist.previtem()
@@ -118,7 +119,8 @@ class History(QObject):
         """
         if not self.is_browsing():
             raise ValueError("Currently not browsing history")
-        assert self._tmphist is not None
+        if self._tmphist is None:
+            raise AssertionError
 
         try:
             return self._tmphist.nextitem()

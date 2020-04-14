@@ -150,10 +150,12 @@ class AsciiDoc:
             for line in infp:
                 line = line.rstrip()
                 if line == '// QUTE_WEB_HIDE':
-                    assert not hidden
+                    if hidden:
+                        raise AssertionError
                     hidden = True
                 elif line == '// QUTE_WEB_HIDE_END':
-                    assert hidden
+                    if not hidden:
+                        raise AssertionError
                     hidden = False
                 elif line == "The Compiler <mail@qutebrowser.org>":
                     continue
