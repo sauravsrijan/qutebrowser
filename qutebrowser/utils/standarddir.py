@@ -102,7 +102,8 @@ def _init_config(args: typing.Optional[argparse.Namespace]) -> None:
 
     config_py_file = os.path.join(_locations[_Location.config], 'config.py')
     if getattr(args, 'config_py', None) is not None:
-        assert args is not None
+        if args is None:
+            raise AssertionError
         config_py_file = os.path.abspath(args.config_py)
     _locations[_Location.config_py] = config_py_file
 
@@ -250,12 +251,13 @@ def _writable_location(typ: QStandardPaths.StandardLocation) -> str:
     typ_str = debug.qenum_key(QStandardPaths, typ)
 
     # Types we are sure we handle correctly below.
-    assert typ in [
+    if typ not in [
         QStandardPaths.ConfigLocation, QStandardPaths.DataLocation,
         QStandardPaths.CacheLocation, QStandardPaths.DownloadLocation,
         QStandardPaths.RuntimeLocation, QStandardPaths.TempLocation,
         # FIXME old Qt
-        getattr(QStandardPaths, 'AppDataLocation', object())], typ_str
+        getattr(QStandardPaths, 'AppDataLocation', object())]:
+        raise AssertionError(typ_str)
 
     with _unset_organization():
         path = QStandardPaths.writableLocation(typ)
@@ -296,7 +298,8 @@ def _from_args(
 
     if getattr(args, 'basedir', None) is None:
         return None
-    assert args is not None
+    if args is None:
+        raise AssertionError
 
     try:
         suffix = basedir_suffix[typ]

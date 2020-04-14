@@ -168,8 +168,10 @@ def read_file(filename: str, binary: bool = False) -> typing.Any:
     Return:
         The file contents as string.
     """
-    assert not posixpath.isabs(filename), filename
-    assert os.path.pardir not in filename.split(posixpath.sep), filename
+    if posixpath.isabs(filename):
+        raise AssertionError(filename)
+    if os.path.pardir in filename.split(posixpath.sep):
+        raise AssertionError(filename)
 
     if not binary and filename in _resource_cache:
         return _resource_cache[filename]
@@ -658,7 +660,8 @@ def open_file(filename: str, cmdline: str = None) -> None:
     if cmdline is None and override:
         cmdline = override
 
-    assert cmdline is not None
+    if cmdline is None:
+        raise AssertionError
 
     cmd, *args = shlex.split(cmdline)
     args = [arg.replace('{}', filename) for arg in args]

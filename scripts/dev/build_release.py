@@ -336,7 +336,8 @@ def build_sdist():
 
     subprocess.run([sys.executable, 'setup.py', 'sdist'], check=True)
     dist_files = os.listdir(os.path.abspath('dist'))
-    assert len(dist_files) == 1
+    if len(dist_files) != 1:
+        raise AssertionError
 
     dist_file = os.path.join('dist', dist_files[0])
     subprocess.run(['gpg', '--detach-sign', '-a', dist_file], check=True)
@@ -351,7 +352,8 @@ def build_sdist():
         _base, ext = os.path.splitext(name)
         by_ext[ext].append(name)
 
-    assert '.pyc' not in by_ext
+    if '.pyc' in by_ext:
+        raise AssertionError
 
     utils.print_title("sdist contents")
 

@@ -112,7 +112,8 @@ class NeighborList(typing.Sequence[_T]):
             True if the value snapped in (changed),
             False when the value already was in the list.
         """
-        assert isinstance(self.fuzzyval, (int, float)), self.fuzzyval
+        if not isinstance(self.fuzzyval, (int, float)):
+            raise AssertionError(self.fuzzyval)
 
         op = operator.le if offset < 0 else operator.ge
         items = [(idx, e) for (idx, e) in enumerate(self._items)
@@ -137,7 +138,8 @@ class NeighborList(typing.Sequence[_T]):
         Return:
             The new item.
         """
-        assert self._idx is not None
+        if self._idx is None:
+            raise AssertionError
         try:
             if self._idx + offset >= 0:
                 new = self._items[self._idx + offset]
@@ -145,7 +147,8 @@ class NeighborList(typing.Sequence[_T]):
                 raise IndexError
         except IndexError:
             if self._mode == self.Modes.edge:
-                assert offset != 0
+                if offset == 0:
+                    raise AssertionError
                 if offset > 0:
                     new = self.lastitem()
                 else:

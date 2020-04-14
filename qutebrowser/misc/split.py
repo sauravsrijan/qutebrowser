@@ -99,7 +99,8 @@ class ShellLexer:
             elif self.state == 'a':
                 if nextchar in self.whitespace:
                     self.state = ' '
-                    assert self.token or self.quoted
+                    if not (self.token or self.quoted):
+                        raise AssertionError
                     yield self.token
                     self.reset()
                     if self.keep:

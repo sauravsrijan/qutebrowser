@@ -275,7 +275,8 @@ class PseudoLayout(QLayout):
     """
 
     def addItem(self, item):
-        assert self.parent() is not None
+        if self.parent() is None:
+            raise AssertionError
         item.widget().setParent(self.parent())
 
     def removeItem(self, item):

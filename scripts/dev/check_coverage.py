@@ -274,9 +274,12 @@ def check(fileobj, perfect_files):
         if filtered_files and filename not in filtered_files:
             continue
 
-        assert 0 <= line_cov <= 100, line_cov
-        assert 0 <= branch_cov <= 100, branch_cov
-        assert '\\' not in filename, filename
+        if 0 > line_cov:
+            raise AssertionError(line_cov)
+        if 0 > branch_cov:
+            raise AssertionError(branch_cov)
+        if '\\' in filename:
+            raise AssertionError(filename)
 
         is_bad = line_cov < 100 or branch_cov < 100
 

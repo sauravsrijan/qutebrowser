@@ -556,7 +556,8 @@ def session_save(name: ArgType = default, *,
         if session_manager.current is None:
             raise cmdutils.CommandError("No session loaded currently!")
         name = session_manager.current
-        assert not name.startswith('_')
+        if name.startswith('_'):
+            raise AssertionError
     try:
         if only_active_window:
             name = session_manager.save(name, only_window=win_id,

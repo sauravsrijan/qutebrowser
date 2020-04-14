@@ -109,7 +109,8 @@ class CrashHandler(QObject):
 
     def display_faulthandler(self):
         """If there was data in the crash log file, display a dialog."""
-        assert not self._args.no_err_windows
+        if self._args.no_err_windows:
+            raise AssertionError
         if self._crash_log_data:
             # Crashlog exists and has data in it, so something crashed
             # previously.
@@ -347,7 +348,8 @@ class SignalHandler(QObject):
         if not self._activated:
             return
         if self._notifier is not None:
-            assert self._orig_wakeup_fd is not None
+            if self._orig_wakeup_fd is None:
+                raise AssertionError
             self._notifier.setEnabled(False)
             rfd = self._notifier.socket()
             wfd = signal.set_wakeup_fd(self._orig_wakeup_fd)
@@ -366,7 +368,8 @@ class SignalHandler(QObject):
 
         Python will get control here, so the signal will get handled.
         """
-        assert self._notifier is not None
+        if self._notifier is None:
+            raise AssertionError
         log.destroy.debug("Handling signal wakeup!")
         self._notifier.setEnabled(False)
         read_fd = self._notifier.socket()

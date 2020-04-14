@@ -93,7 +93,8 @@ class BaseLineParser(QObject):
         Yields:
             a file object for the config file
         """
-        assert self._configfile is not None
+        if self._configfile is None:
+            raise AssertionError
         if self._opened:
             raise IOError("Refusing to double-open LineParser.")
         self._opened = True
@@ -178,7 +179,8 @@ class LineParser(BaseLineParser):
             return
         self._opened = True
         try:
-            assert self._configfile is not None
+            if self._configfile is None:
+                raise AssertionError
             with qtutils.savefile_open(self._configfile, self._binary) as f:
                 self._write(f, self.data)
         finally:
@@ -220,7 +222,8 @@ class LimitLineParser(LineParser):
     @pyqtSlot(str)
     def _cleanup_file(self, option):
         """Delete the file if the limit was changed to 0."""
-        assert self._configfile is not None
+        if self._configfile is None:
+            raise AssertionError
         if option != self._limit:
             return
         value = config.instance.get(option)
@@ -236,7 +239,8 @@ class LimitLineParser(LineParser):
         do_save = self._prepare_save()
         if not do_save:
             return
-        assert self._configfile is not None
+        if self._configfile is None:
+            raise AssertionError
         with qtutils.savefile_open(self._configfile, self._binary) as f:
             self._write(f, self.data[-limit:])
         self._after_save()

@@ -335,7 +335,8 @@ def import_chrome(profile, bookmark_types, output_format):
             """Recursive function to walk through bookmarks."""
             if not isinstance(bm, dict):
                 return
-            assert 'type' in bm, bm
+            if 'type' not in bm:
+                raise AssertionError(bm)
             if bm['type'] == 'url':
                 if urllib.parse.urlparse(bm['url']).scheme != 'chrome':
                     print(template.format(**bm))
